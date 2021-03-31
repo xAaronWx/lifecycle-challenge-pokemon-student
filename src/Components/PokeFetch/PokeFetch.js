@@ -1,3 +1,52 @@
+// import React, { Component } from "react";
+// import "./PokeFetch.css";
+
+// class PokeFetch extends Component {
+//   constructor() {
+//     super();
+//     this.state = {
+//       pokeInfo: "",
+//       pokeSprite: "",
+//       pokeName: "",
+//     };
+//   }
+
+//   fetchPokemon() {
+//     let min = Math.ceil(1);
+//     let max = Math.floor(152);
+//     let pokeNum = Math.floor(Math.random() * (max - min) + min);
+//     fetch(`https://pokeapi.co/api/v2/pokemon/${pokeNum}`, {
+//       method: "GET",
+//     })
+//       .then((res) => res.json())
+//       .then((res) => {
+//         this.setState({
+//           pokeInfo: res,
+//           pokeSprite: res.sprites.front_default,
+//           pokeName: res.species.name,
+//         });
+//       })
+//       .catch((err) => console.log(err));
+//   }
+
+//   render() {
+//     return (
+//       <div className={"wrapper"}>
+//         <button className={"start"} onClick={() => this.fetchPokemon()}>
+//           Start!
+//         </button>
+//         <h1 className={"timer"}>Timer Display</h1>
+//         <div className={"pokeWrap"}>
+//           <img className={"pokeImg"} src={this.state.pokeSprite} />
+//           <h1 className={"pokeName"}>{this.state.pokeName}</h1>
+//         </div>
+//       </div>
+//     );
+//   }
+// }
+
+// export default PokeFetch;
+
 import React, { Component } from "react";
 import "./PokeFetch.css";
 
@@ -8,24 +57,10 @@ class PokeFetch extends Component {
       pokeInfo: "",
       pokeSprite: "",
       pokeName: "",
+      currentCount: 10,
+      answer: "",
     };
   }
-
-  // const TimerApp = () => {
-  //     const [secondsElapsed, setSecondsElapsed] = useState(0);
-  //     useEffect(() => {
-  //         let interval = setInterval(() => tick(), 1000);
-  //         return () => clearInterval(interval);
-  //     })
-
-  //     const tick = () => setSecondsElapsed(secondsElapsed + 1);
-  //     return (
-  //         <div>
-  //             <h1 className="section-title">React Timer</h1>
-  //             <div>Seconds Elapsed: {secondsElapsed}</div>
-  //         </div>
-  //     )
-  // }
 
   fetchPokemon() {
     let min = Math.ceil(1);
@@ -45,25 +80,63 @@ class PokeFetch extends Component {
       .catch((err) => console.log(err));
   }
 
-  componentDidUpdate(prevProps, prevState) {
-    let countdown = () => {
-      let remainingTime = 10;
-      const newTime = () => {
-        remainingTime = remainingTime - 1;
-      };
-    };
+  timer = () => {
+    if (this.state.currentCount <= 0) return;
+    this.setState({
+      currentCount: this.state.currentCount - 1,
+    });
+    if (this.state.currentCount < 1) {
+      clearInterval(this.intervalId);
+    }
+  };
+
+  componentDidUpdate() {
+    this.intervalId = setInterval(this.timer.bind(this), 1000);
   }
+  componentWillUpdate() {
+    clearInterval(this.intervalId);
+  }
+
+  resetState = () => {
+    this.setState({ currentCount: 10 });
+  };
 
   render() {
     return (
       <div className={"wrapper"}>
-        <button className={"start"} onClick={() => this.fetchPokemon()}>
+        <button
+          className={"start"}
+          onClick={() => {
+            this.resetState();
+            this.fetchPokemon();
+          }}
+        >
           Start!
         </button>
-        <h1 className={"timer"}>Timer Display</h1>
+        <h1
+          className={"timer"}
+        >{`Timer Display: ${this.state.currentCount}`}</h1>
         <div className={"pokeWrap"}>
-          <img className={"pokeImg"} src={this.state.pokeSprite} />
-          <h1 className={"pokeName"}>{this.state.pokeName}</h1>
+          <img
+            className={"pokeImg"}
+            src={this.state.pokeSprite}
+            style={
+              this.state.currentCount === 0
+                ? { filter: "brightness(100%)" }
+                : { filter: "brightness(0%)" }
+            }
+            alt="/"
+          />
+          <h1
+            className={"pokeName"}
+            style={
+              this.state.currentCount === 0
+                ? { opacity: "1" }
+                : { opacity: "0" }
+            }
+          >
+            {this.state.pokeName}
+          </h1>
         </div>
       </div>
     );
